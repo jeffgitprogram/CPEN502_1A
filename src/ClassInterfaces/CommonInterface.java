@@ -1,6 +1,8 @@
 package ClassInterfaces;
 
 import java.io.File;
+import java.io.IOException;
+
 	/**
 	 * This interface is common to both the Neural Net and LUT interfaces.
 	 * The idea is that you should be able to easily switch the LUT

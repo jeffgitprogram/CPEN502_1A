@@ -32,14 +32,14 @@ public interface NeuralNetInterface extends CommonInterface{
 	* @param x The input
 	* @return f(x) = 2 / (1+e(-x)) - 1
 	*/
-	public double sigmoid(double x);
+	//public double sigmoid(double x);
 	
 	/**
 	 * This method implements a general sigmoid with asymptotes bounded by (a,b)
 	 * @param x The input
 	 * @return f(x) = b_minus_a / (1 + e(-x)) - minus_a
 	 */
-	public double customSigmoid(double x);
+	//public double customSigmoid(double x);
 	
 	/**
 	 * Initialize the weights to random values.
