@@ -11,7 +11,10 @@ public class Neuron {
 	/*This hashmap saves all the income connections for lookup*/ 
 	private HashMap<String,NeuronConnection> inputconnectionMap = new HashMap<String,NeuronConnection>();
 	
-	protected NeuronConnection biasConnection;	
+	private NeuronConnection biasConnection;
+	
+	private String activationType;
+	
 	final double bias = 1;
 	public double NeuronOutput = 0;
 	//private int inputConnectionCount = 0;
@@ -23,11 +26,13 @@ public class Neuron {
 	
 	public Neuron(String id, String ActivationFunctionType, List<Neuron> inputNeurons) {
 		this.id = id;
+		setActivationType(ActivationFunctionType);
 		addInputConnections(inputNeurons);
 	}
 	
 	public Neuron(String id, String ActivationFunctionType, List<Neuron> inputNeurons, Neuron bias) {
 		this.id = id;
+		setActivationType(ActivationFunctionType);
 		addInputConnections(inputNeurons);
 		addBiasConnection(bias);
 	}
@@ -35,6 +40,14 @@ public class Neuron {
 	/*Utility Functions*/
 	public String getId() {
 		return this.id;
+	}
+	
+	public void setActivationType(String type) {
+		this.activationType = type;
+	}
+	
+	public String getActivationType() {
+		return this.activationType;
 	}
 
 	/* Ouput Calculation Functions*/
@@ -46,18 +59,18 @@ public class Neuron {
 		this.NeuronOutput = output;
 	}
 	
-	public void calculateOutput(String ActivationFunctionType) {
+	public void calculateOutput() {
 		double weightedSum = inputSummingFunction(this.inputConnections);
-		if(ActivationFunctionType == "bipolar") {
+		if(this.activationType == "bipolar") {
 			this.NeuronOutput = bipolarSigmoid(weightedSum);
-		}else if(ActivationFunctionType == "Unipolar") {
+		}else if(this.activationType == "Unipolar") {
 			this.NeuronOutput = unipolarSigmoid(weightedSum);
 		}
 	}
 	
-	public void calculateOutput(String ActivationFunctionType, int ArgA, int ArgB) {
+	public void calculateOutput(double ArgA, double ArgB) {
 		double weightedSum = inputSummingFunction(this.inputConnections);
-		if(ActivationFunctionType == "Customized") {
+		if(this.activationType == "Customized") {
 			this.NeuronOutput = customizedSigmoid(weightedSum,ArgA,ArgB);
 		}
 	}
@@ -114,7 +127,7 @@ public class Neuron {
 		return 2/(1 + Math.exp(-weightedSum))-1;
 	}
 	
-	private double customizedSigmoid(double weightedSum,int a, int b){
+	private double customizedSigmoid(double weightedSum,double a, double b){
 		return (b-a)/(1+Math.exp(-weightedSum))+a;
 	}
 	
