@@ -7,7 +7,7 @@ public class Neuron {
 	/*Neuron's identifier*/
 	final String id;
 	/*This arraylist saves all the income connections that are input to this neuron, which can be iterated through*/
-	private ArrayList <NeuronConnection> inputConnections = new ArrayList <NeuronConnection> ();;
+	private ArrayList <NeuronConnection> inputConnections = new ArrayList <NeuronConnection> ();
 	/*This hashmap saves all the income connections for lookup*/ 
 	private HashMap<String,NeuronConnection> inputconnectionMap = new HashMap<String,NeuronConnection>();
 	
@@ -50,7 +50,7 @@ public class Neuron {
 		return this.activationType;
 	}
 
-	/* Ouput Calculation Functions*/
+	/* Output Calculation Functions*/
 	public double getOutput() {
 		return this.NeuronOutput;
 	}
@@ -123,11 +123,11 @@ public class Neuron {
 		// compute the output signal of the binary sigmoid function with input x
 		return 1/(1 + Math.exp(-weightedSum));
 	}
-	private double bipolarSigmoid(double weightedSum) {
+	public double bipolarSigmoid(double weightedSum) {
 		return 2/(1 + Math.exp(-weightedSum))-1;
 	}
 	
-	private double customizedSigmoid(double weightedSum,double a, double b){
+	public double customizedSigmoid(double weightedSum,double a, double b){
 		return (b-a)/(1+Math.exp(-weightedSum))+a;
 	}
 	

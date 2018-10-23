@@ -17,6 +17,8 @@ public class NeuronConnection {
 	
 	private double prevDeltaWeight = 0;	
 	
+	private double partialDerivative = 0;
+	
 	
 	/*Construction with random initialization*/
 	public NeuronConnection(Neuron src, Neuron dest) {
@@ -53,6 +55,14 @@ public class NeuronConnection {
 	public double getPrevDeltaWeight() {
 		return this.prevDeltaWeight;
 	}	
+	
+	public void setPartialDerivative(double value) {
+		this.partialDerivative = value;
+	}
+	
+	public double getPartialDerivative() {
+		return this.partialDerivative;
+	}
 	
 	
 	public double getInput() {

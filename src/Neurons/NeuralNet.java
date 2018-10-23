@@ -26,11 +26,13 @@ public class NeuralNet implements NeuralNetInterface {
 	private Neuron biasNeuron = new Neuron("bias"); // Neuron id 0 is reserved for bias neuron
 	
 	private final double inputData[][] = {{0,0},{1,0},{0,1},{1,1}};
+	
+	private final double expectedOutput[][] = {{0},{1},{1},{0}};
 	private double EpochOutput[][] = {{-1},{-1}, {-1}, {-1}};//Initial value -1 for each output
 	public NeuralNet(
 					int numInputs, int numHiddens, 
-					int numOutputs, int learningRate, 
-					int momentumRate, int a, int b) {
+					int numOutputs, double learningRate, 
+					double momentumRate, double a, double b) {
 		this.argNumInputs = numInputs;
 		this.argNumHiddens = numHiddens;
 		this.argNumOutputs = numOutputs;
@@ -120,14 +122,42 @@ public class NeuralNet implements NeuralNetInterface {
 	
 	public void setEpochResults(double[][] results){
 		for(int i = 0; i < results.length;i++) {
-			for(int j = 0; j < results[0].length;j++)
+			for(int j = 0; j < results[i].length;j++)
 			{
 				this.EpochOutput[i][j] = results[i][j];
 			}
 		}
 	}
 	//TODO
-	private void applyBackpropagation(double expectedOutput[]) {}
+	private void applyBackpropagation(double expectedOutput[]) {
+		int i = 0;
+		for(Neuron output : outputLayerNeurons) {
+			double yi = output.getOutput();
+			double ci = expectedOutput[i];
+			
+			ArrayList<NeuronConnection> connections = output.getInputConnectionList();
+			for(NeuronConnection link : connections) {
+				double xi = link.getInput();
+				double partialDerivative = customSigmoidDerivative(yi)*(ci-yi);
+				double deltaWeight = argLearningRate*partialDerivative*xi + argMomentumRate*link.getDeltaWeight();
+				double newWeight = link.getWeight() + deltaWeight;
+				link.setDeltaWeight(deltaWeight);
+				link.setWeight(newWeight);			
+			}
+			i++;
+		}
+		
+		for(Neuron hidden: hiddenLayerNeurons) {
+			ArrayList<NeuronConnection> connections = hidden.getInputConnectionList();
+			double yi =hidden.getOutput();
+			for(NeuronConnection link : connections) {
+				double xi = link.getInput();
+				double sumWeightedPartialDerivative = 0;
+				//TODO
+			}
+		}
+		
+	}
 	
 	@Override
 	public double [] outputFor(double[] inputData) {
@@ -154,7 +184,25 @@ public class NeuralNet implements NeuralNetInterface {
 		// TODO Auto-generated method stub
 
 	}
-
+	
+	public double sigmoidDerivative(double yi) {
+		double result = yi*(1 - yi);
+		return result;
+	}
+	
+	public double bipolarSigmoidDerivative(double yi) {
+		double result = 1.0/2.0 * (1-yi) * (1+yi);
+		return result;
+	}
+	 /**
+     * This method implements the first derivative of the customized sigmoid
+     * @param x The input
+     * @return f'(x) = -(1 / (b - a))(customSigmoid - a)(customSigmoid - b)
+     */	
+	public double customSigmoidDerivative(double yi) {
+		double result = -(1.0/(argB-argA)) * (yi-argA) * (yi-argB);
+		return result;
+	}
 	/*@Override
 	public double sigmoid(double x) {
 		// TODO Auto-generated method stub
