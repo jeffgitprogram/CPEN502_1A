@@ -59,18 +59,14 @@ public class Neuron {
 		this.NeuronOutput = output;
 	}
 	
-	public void calculateOutput() {
+	
+	public void calculateOutput(double ArgA, double ArgB) {
 		double weightedSum = inputSummingFunction(this.inputConnections);
 		if(this.activationType == "bipolar") {
 			this.NeuronOutput = bipolarSigmoid(weightedSum);
 		}else if(this.activationType == "Unipolar") {
 			this.NeuronOutput = unipolarSigmoid(weightedSum);
-		}
-	}
-	
-	public void calculateOutput(double ArgA, double ArgB) {
-		double weightedSum = inputSummingFunction(this.inputConnections);
-		if(this.activationType == "Customized") {
+		}else if(this.activationType == "Customized") {
 			this.NeuronOutput = customizedSigmoid(weightedSum,ArgA,ArgB);
 		}
 	}
@@ -82,12 +78,12 @@ public class Neuron {
 		{
 			double weight = connection.getWeight();
 			double input = connection.getInput();
-			weightedSum += weight*input;
+			weightedSum = weightedSum + weight*input;
 		}
 		
 		//Add bias to the weighted sum
 		if (biasConnection != null) {
-			weightedSum += (this.biasConnection.getWeight()*this.bias);
+			weightedSum = weightedSum + (this.biasConnection.getWeight()*this.bias);
 		}
 		
 		return weightedSum;
@@ -109,8 +105,8 @@ public class Neuron {
 		inputConnections.add(connection); //Add bias connection to the list for the ease of weight updating, it should always output 0
 	}
 	
-	public NeuronConnection getInputConnection(Neuron neuron) {
-		return inputconnectionMap.get(neuron.getId());
+	public NeuronConnection getInputConnection(String neuronId) {
+		return inputconnectionMap.get(neuronId);
 	}
 	
 	public ArrayList<NeuronConnection> getInputConnectionList() {

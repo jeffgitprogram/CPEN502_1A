@@ -1,9 +1,11 @@
 package Neurons;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Random;
 
 import ClassInterfaces.NeuralNetInterface;
@@ -25,14 +27,19 @@ public class NeuralNet implements NeuralNetInterface {
 	/* Need to keep in mind that, all neurons can connect to the same bias neuron, since the output of bias neuron is not evaluated*/
 	private Neuron biasNeuron = new Neuron("bias"); // Neuron id 0 is reserved for bias neuron
 	
-	private final double inputData[][] = {{0,0},{1,0},{0,1},{1,1}};
+	private double inputData[][] = {{0,0},{1,0},{0,1},{1,1}};	
+	private double expectedOutput[][] = {{0},{1},{1},{0}};
+	private double epochOutput[][] = {{-1},{-1}, {-1}, {-1}};//Initial value -1 for each output
+	private ArrayList<Double> errorInEachEpoch = new ArrayList<>();
 	
-	private final double expectedOutput[][] = {{0},{1},{1},{0}};
-	private double EpochOutput[][] = {{-1},{-1}, {-1}, {-1}};//Initial value -1 for each output
+	
 	public NeuralNet(
 					int numInputs, int numHiddens, 
 					int numOutputs, double learningRate, 
-					double momentumRate, double a, double b) {
+					double momentumRate, double a, double b,
+					double [][] inputData,
+					double [][] expectedOutput,
+					double [][] epochOutput) {
 		this.argNumInputs = numInputs;
 		this.argNumHiddens = numHiddens;
 		this.argNumOutputs = numOutputs;
@@ -40,6 +47,9 @@ public class NeuralNet implements NeuralNetInterface {
 		this.argMomentumRate = momentumRate;
 		this.argA = a;
 		this.argB = b;
+		this.inputData = inputData;
+		this.expectedOutput = expectedOutput;
+		this.epochOutput = epochOutput;
 		this.setUpNetwork();
 		this.initializeWeights();
 	}
@@ -47,21 +57,21 @@ public class NeuralNet implements NeuralNetInterface {
 		/*Set up Input layer first*/
 		for(int i = 0; i < this.argNumInputs;i++) {
 			String index = "Input"+Integer.toString(i);
-			System.out.println(index);
+			//System.out.println(index);
 			Neuron neuron = new Neuron(index);
 			inputLayerNeurons.add(neuron);
 		}
 		
 		for(int j = 0; j < this.argNumHiddens;j++) {
 			String index = "Hidden"+Integer.toString(j);
-			System.out.println(index);
-			Neuron neuron = new Neuron(index,"bipolar",inputLayerNeurons,biasNeuron);
+			//System.out.println(index);
+			Neuron neuron = new Neuron(index,"Customized",inputLayerNeurons,biasNeuron);
 			hiddenLayerNeurons.add(neuron);
 		}
 		
 		for(int k = 0; k < this.argNumOutputs;k++) {
 			String index = "Output"+Integer.toString(k);
-			System.out.println(index);
+			//System.out.println(index);
 			Neuron neuron = new Neuron(index,"Customized",hiddenLayerNeurons,biasNeuron);
 			outputLayerNeurons.add(neuron);
 		}
@@ -93,11 +103,11 @@ public class NeuralNet implements NeuralNetInterface {
 	 */
 	public void forwardPropagation() {
 		for(Neuron hidden: hiddenLayerNeurons) {
-			hidden.calculateOutput();
+			hidden.calculateOutput(argA,argB);
 		}
 		
 		for (Neuron output: outputLayerNeurons) {
-			output.calculateOutput(this.argA, this.argB);
+			output.calculateOutput(argA, argB);
 		}
 	}
 	
@@ -117,14 +127,14 @@ public class NeuralNet implements NeuralNetInterface {
 	 * @return an array of results for each forwarding in a single epoch
 	 */
 	public double [][] getEpochResults() {
-		return this.EpochOutput;
+		return epochOutput;
 	}
 	
 	public void setEpochResults(double[][] results){
 		for(int i = 0; i < results.length;i++) {
 			for(int j = 0; j < results[i].length;j++)
 			{
-				this.EpochOutput[i][j] = results[i][j];
+				epochOutput[i][j] = results[i][j];
 			}
 		}
 	}
@@ -138,8 +148,9 @@ public class NeuralNet implements NeuralNetInterface {
 			ArrayList<NeuronConnection> connections = output.getInputConnectionList();
 			for(NeuronConnection link : connections) {
 				double xi = link.getInput();
-				double partialDerivative = customSigmoidDerivative(yi)*(ci-yi);
-				double deltaWeight = argLearningRate*partialDerivative*xi + argMomentumRate*link.getDeltaWeight();
+				double error = customSigmoidDerivative(yi)*(ci-yi);
+				link.setError(error);
+				double deltaWeight = argLearningRate*error*xi + argMomentumRate*link.getDeltaWeight();//current link's deltaweight has not be updated yet, so it is previous delta w
 				double newWeight = link.getWeight() + deltaWeight;
 				link.setDeltaWeight(deltaWeight);
 				link.setWeight(newWeight);			
@@ -152,11 +163,21 @@ public class NeuralNet implements NeuralNetInterface {
 			double yi =hidden.getOutput();
 			for(NeuronConnection link : connections) {
 				double xi = link.getInput();
-				double sumWeightedPartialDerivative = 0;
-				//TODO
+				double sumWeighted= 0;
+				for(Neuron output: outputLayerNeurons) {
+					double wjh = output.getInputConnection(hidden.getId()).getWeight();
+					double errorFromAbove = output.getInputConnection(hidden.getId()).getError();
+					sumWeighted = sumWeighted + wjh *errorFromAbove;
+				}
+				
+				double error = customSigmoidDerivative(yi)*sumWeighted;
+				link.setError(error);
+				double deltaWeight = argLearningRate*error*xi + argMomentumRate * link.getDeltaWeight();
+				double newWeight = link.getWeight() + deltaWeight;
+				link.setDeltaWeight(deltaWeight);
+				link.setWeight(newWeight);							
 			}
-		}
-		
+		}		
 	}
 	
 	@Override
@@ -168,10 +189,59 @@ public class NeuralNet implements NeuralNetInterface {
 	}
 
 	@Override
-	public double train(double[] X, double argValue) {
-		// TODO Auto-generated method stub
-		return 0;
+	/***
+	 * This method take in one vector of input and return a vector of output,
+	 * the whole process include one forward propagation and one backward propagation.
+	 */
+	public double train(double[] inputData, double[] expectedValue, int iteration) {
+		double error = 0;
+		double output[] = outputFor(inputData);
+		epochOutput[iteration] = output;
+		for (int j = 0; j < expectedValue.length; j++) {
+			double deltaErr = Math.pow((output[j]-expectedValue[j]),2);
+			error = error + deltaErr;
+		}		
+		this.applyBackpropagation(expectedValue);
+		return error;
 	}
+	
+	/**
+	 * This method run train function for the times that equals to the amount of input samples which is one epoch
+	 * @return accumulate squared error generated in one epoch.
+	 */
+	public double epochTrain() {
+		double totalerror = 0;
+		for(int p = 0; p < inputData.length; p++) {
+			totalerror = totalerror + train(inputData[p],expectedOutput[p],p);			
+		}
+		errorInEachEpoch.add(totalerror);
+		return totalerror;
+	}
+	
+	public void tryConverge(int maxStep, double minError) {
+		int i;
+		double error = 1;
+		for(i = 0; i < maxStep && error > minError; i++) {
+			error = epochTrain();
+		}
+		System.out.println("Sum of squared error in last epoch = " + error);
+		System.out.println("Number of epoch"+ i + "\n");
+		if(i == maxStep) {
+			System.out.println("Error in training, try again!");
+		}
+	}
+	
+	public void printRunResults(ArrayList<Double> errors, String fileName) throws IOException {
+		int epoch;
+		PrintWriter printWriter = new PrintWriter(new FileWriter(fileName));
+		printWriter.printf("Epoch Number, Total Squared Error, \n");
+		for(epoch = 0; epoch < errors.size(); epoch++) {
+			printWriter.printf("%d, %f, \n", epoch, errors.get(epoch));
+		}
+		printWriter.flush();
+		printWriter.close();
+	}
+	
 
 	@Override
 	public void save(File argFile) {
@@ -203,17 +273,6 @@ public class NeuralNet implements NeuralNetInterface {
 		double result = -(1.0/(argB-argA)) * (yi-argA) * (yi-argB);
 		return result;
 	}
-	/*@Override
-	public double sigmoid(double x) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public double customSigmoid(double x) {
-		// TODO Auto-generated method stub
-		return 0;
-	}*/
 
 	@Override
 	public void initializeWeights() {
@@ -251,7 +310,7 @@ public class NeuralNet implements NeuralNetInterface {
 
 	}
 	
-	private double getRandom(double lowerbound, double upperbound) {
+	public double getRandom(double lowerbound, double upperbound) {
 		double random = new Random().nextDouble();
 		
 		double result = lowerbound+(upperbound-lowerbound)*random;
