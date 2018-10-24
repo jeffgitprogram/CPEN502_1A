@@ -12,13 +12,13 @@ import ClassInterfaces.NeuralNetInterface;
 
 public class NeuralNet implements NeuralNetInterface {
 	
-	int argNumInputs;
-	int argNumHiddens;
-	int argNumOutputs;
-	double argLearningRate;
-	double argMomentumRate;
-	double argA;
-	double argB;
+	private int argNumInputs;
+	private int argNumHiddens;
+	private int argNumOutputs;
+	private double argLearningRate;
+	private double argMomentumRate;
+	private double argA;
+	private double argB;
 	/*Keep inputNeuron, hiddenNeuron, outputNeuron separately in arraylists*/
 	private ArrayList<Neuron> inputLayerNeurons = new ArrayList<Neuron>();	
 	private ArrayList<Neuron> hiddenLayerNeurons = new ArrayList<Neuron>();
@@ -26,7 +26,7 @@ public class NeuralNet implements NeuralNetInterface {
 	
 	/* Need to keep in mind that, all neurons can connect to the same bias neuron, since the output of bias neuron is not evaluated*/
 	private Neuron biasNeuron = new Neuron("bias"); // Neuron id 0 is reserved for bias neuron
-	
+	/**These arrays and list save the input data, expected output, actual output and error in each epoch****/
 	private double inputData[][] = {{0,0},{1,0},{0,1},{1,1}};	
 	private double expectedOutput[][] = {{0},{1},{1},{0}};
 	private double epochOutput[][] = {{-1},{-1}, {-1}, {-1}};//Initial value -1 for each output
@@ -52,6 +52,7 @@ public class NeuralNet implements NeuralNetInterface {
 		this.setUpNetwork();
 		this.initializeWeights();
 	}
+	
 	public void setUpNetwork() {
 		/*Set up Input layer first*/
 		for(int i = 0; i < this.argNumInputs;i++) {
@@ -61,13 +62,14 @@ public class NeuralNet implements NeuralNetInterface {
 			inputLayerNeurons.add(neuron);
 		}
 		
+		/*Set up hidden layer*/
 		for(int j = 0; j < this.argNumHiddens;j++) {
 			String index = "Hidden"+Integer.toString(j);
 			//System.out.println(index);
 			Neuron neuron = new Neuron(index,"Customized",inputLayerNeurons,biasNeuron);
 			hiddenLayerNeurons.add(neuron);
 		}
-		
+		/*Set up output layer*/
 		for(int k = 0; k < this.argNumOutputs;k++) {
 			String index = "Output"+Integer.toString(k);
 			//System.out.println(index);
@@ -105,7 +107,8 @@ public class NeuralNet implements NeuralNetInterface {
 	public void setErrorArray(ArrayList<Double> errors) {
 		errorInEachEpoch = errors;
 	}
-	/*
+	
+	/*****
 	 * This method calculates the output of the NN based on the input 
 	 * vector using forward propagation, calculation is done layer by layer 
 	 */
@@ -130,6 +133,7 @@ public class NeuralNet implements NeuralNetInterface {
 	public ArrayList<Neuron> getOutputNeurons(){
 		return this.outputLayerNeurons;
 	}
+	
 	/**
 	 * 
 	 * @return an array of results for each forwarding in a single epoch
@@ -146,36 +150,39 @@ public class NeuralNet implements NeuralNetInterface {
 			}
 		}
 	}
-	//TODO
+	
+	/**
+	 * This perform backpropagation to update all the weight in this NN.
+	 * @param expectedOutput
+	 */
 	private void applyBackpropagation(double expectedOutput[]) {
 		int i = 0;
 		for(Neuron output : outputLayerNeurons) {
 			double yi = output.getOutput();
-			double ci = expectedOutput[i];
-			
+			double ci = expectedOutput[i];			
 			ArrayList<NeuronConnection> connections = output.getInputConnectionList();
-			double error = customSigmoidDerivative(yi)*(ci-yi);
+			double error = customSigmoidDerivative(yi)*(ci-yi);//Calculate delta for this neuron and record the error for later use
 			output.setError(error);
 			for(NeuronConnection link : connections) {
 				double xi = link.getInput();
-				double deltaWeight = argLearningRate*error*xi + argMomentumRate*link.getDeltaWeight();//current link's deltaweight has not be updated yet, so it is previous delta w
-				double newWeight = link.getWeight() + deltaWeight;
-				link.setDeltaWeight(deltaWeight);
+				double deltaWeight = argLearningRate*error*xi + argMomentumRate*link.getDeltaWeight();//Calculate the delta weight for the specific connection
+				double newWeight = link.getWeight() + deltaWeight;//Calculate new weight
+				link.setDeltaWeight(deltaWeight);//Update weight and delta weight 
 				link.setWeight(newWeight);			
-			}
+			}//Weights for all input connection of this output neuron is updated. 
 			i++;
-		}
+		}//Update weights for all output neurons, in this problem there is only one output
 		
 		for(Neuron hidden: hiddenLayerNeurons) {
 			ArrayList<NeuronConnection> connections = hidden.getInputConnectionList();
 			double yi =hidden.getOutput();
 			double sumWeightedError= 0.0;
 			for(Neuron output: outputLayerNeurons) {
-				double wjh = output.getInputConnection(hidden.getId()).getWeight();
-				double errorFromAbove = output.getError();
+				double wjh = output.getInputConnection(hidden.getId()).getWeight();//Get the weight of the output connection that connects to this neuron
+				double errorFromAbove = output.getError();//Get the delta of the output neuron that connects to this neuron
 				sumWeightedError = sumWeightedError + wjh *errorFromAbove;
-			}
-			double error = customSigmoidDerivative(yi)*sumWeightedError;
+			}//Sum of weighted error is calculated
+			double error = customSigmoidDerivative(yi)*sumWeightedError;//Calculate and record the delta for this hidden neuron
 			hidden.setError(error);
 			for(NeuronConnection link : connections) {
 				double xi = link.getInput();				
@@ -183,10 +190,12 @@ public class NeuralNet implements NeuralNetInterface {
 				double newWeight = link.getWeight() + deltaWeight;
 				link.setDeltaWeight(deltaWeight);
 				link.setWeight(newWeight);							
-			}
+			}//Calculate delta weight for each input connection to this neuron and update the weights.
 		}		
 	}
-	
+	/***
+	 * This method set input data to the NN, run one forward propagation and return the output for this run. 
+	 */
 	@Override
 	public double [] outputFor(double[] inputData) {
 		setInputData(inputData);
@@ -197,7 +206,7 @@ public class NeuralNet implements NeuralNetInterface {
 
 	@Override
 	/**
-	 * This method run train function for the times that equals to the amount of input samples which is one epoch
+	 * This method performs one epoch of train to the NN.
 	 * @return accumulate squared error generated in one epoch.
 	 */
 	public double train() {
@@ -214,10 +223,14 @@ public class NeuralNet implements NeuralNetInterface {
 			totalError = totalError + error;//Accumulated errors in one epoch
 		}
 		errorInEachEpoch.add(totalError);
-		return totalError;
+		return 0.5*totalError;
 	}
 	
-		
+	/**
+	 * This method run train for many epochs till the NN converge subjects to the max step constrain.	
+	 * @param maxStep
+	 * @param minError
+	 */
 	public void tryConverge(int maxStep, double minError) {
 		int i;
 		double error = 1;
@@ -230,7 +243,12 @@ public class NeuralNet implements NeuralNetInterface {
 			System.out.println("Error in training, try again!");
 		}
 	}
-	
+	/**
+	 * This method print epoch errors into a .csv file.
+	 * @param errors
+	 * @param fileName
+	 * @throws IOException
+	 */
 	public void printRunResults(ArrayList<Double> errors, String fileName) throws IOException {
 		int epoch;
 		PrintWriter printWriter = new PrintWriter(new FileWriter(fileName));
