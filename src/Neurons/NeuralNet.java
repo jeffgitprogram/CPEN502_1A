@@ -222,7 +222,7 @@ public class NeuralNet implements NeuralNetInterface {
 			this.applyBackpropagation(expectedOutput[p]);
 			totalError = totalError + error;//Accumulated errors in one epoch
 		}
-		errorInEachEpoch.add(totalError);
+		errorInEachEpoch.add(0.5*totalError);
 		return 0.5*totalError;
 	}
 	

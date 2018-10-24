@@ -117,7 +117,7 @@ public class NeuralNetTest {
 	/*
 	 * This test tests the converge of neural network using bipolar representation.
 	 */
-	@Ignore("Ignored")
+	//@Ignore("Ignored")
 	@Test
 	public void testBipolarConverge() {
 		//testNeuronNet.zeroWeights();
@@ -160,7 +160,7 @@ public class NeuralNetTest {
 	/**
 	 * This test tests the average converge performance of unipolar neural network.
 	 */
-	//@Ignore("Ignored")
+	@Ignore("Ignored")
 	@Test
 	public void testBipolarAverage(){
 		int average = EpochAverage(momentumRate_1,b_lowerBound,b_upperBound,b_inputData,b_expectedOutput,0.05,10000,1000);
