@@ -118,18 +118,20 @@ public class NeuralNetTest {
 			System.out.println(e);
 		}		
 	}
-	@Ignore("Ignored")
+	//@Ignore("Ignored")
 	@Test
 	public void testUnipolarAverage(){
 		int average = EpochAverage(momentumRate_1,u_lowerBound,u_upperBound,u_inputData,u_expectedOutput,0.05,10000,500);
 		System.out.println("The average of number of epoches to converge is: "+average+"\n");
 	}
+	
 	@Ignore("Ignored")
 	@Test
 	public void testBipolarAverage(){
 		int average = EpochAverage(momentumRate_1,b_lowerBound,b_upperBound,b_inputData,b_expectedOutput,0.05,10000,500);
 		System.out.println("The average of number of epoches to converge is: "+average+"\n");
 	}
+	@Ignore("Ignored")
 	@Test
 	public void testBipolarWithMomentumAverage(){
 		int average = EpochAverage(momentumRate_2,b_lowerBound,b_upperBound,b_inputData,b_expectedOutput,0.05,10000,1000);
