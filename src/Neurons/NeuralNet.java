@@ -83,6 +83,7 @@ public class NeuralNet implements NeuralNetInterface {
 		for(int i = 0; i < inputLayerNeurons.size(); i++) {
 			inputLayerNeurons.get(i).setOutput(inputs[i]);//Input Layer Neurons only have output values.
 		}
+		biasNeuron.setOutput(1.0);
 	}
 	
 	/**
@@ -95,6 +96,14 @@ public class NeuralNet implements NeuralNetInterface {
 			outputs[i] = outputLayerNeurons.get(i).getOutput();
 		}
 		return outputs;
+	}
+	
+	public ArrayList <Double> getErrorArray(){
+		return errorInEachEpoch;
+	}
+	
+	public void setErrorArray(ArrayList<Double> errors) {
+		errorInEachEpoch = errors;
 	}
 	/*
 	 * This method calculates the output of the NN based on the input 
@@ -217,7 +226,7 @@ public class NeuralNet implements NeuralNetInterface {
 			error = train();
 		}
 		System.out.println("Sum of squared error in last epoch = " + error);
-		System.out.println("Number of epoch"+ i + "\n");
+		System.out.println("Number of epoch: "+ i + "\n");
 		if(i == maxStep) {
 			System.out.println("Error in training, try again!");
 		}
@@ -303,10 +312,11 @@ public class NeuralNet implements NeuralNetInterface {
 	}
 	
 	public double getRandom(double lowerbound, double upperbound) {
-		double random = new Random().nextDouble();
-		
+		double random = Math.random();	
 		double result = lowerbound+(upperbound-lowerbound)*random;
 		return result;
 	}
+	
+	
 
 }

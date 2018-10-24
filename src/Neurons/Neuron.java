@@ -11,11 +11,11 @@ public class Neuron {
 	/*This hashmap saves all the income connections for lookup*/ 
 	private HashMap<String,NeuronConnection> inputconnectionMap = new HashMap<String,NeuronConnection>();
 	
-	private NeuronConnection biasConnection;
+	//private NeuronConnection biasConnection;
 	
 	private String activationType;
 	
-	final double bias = 1;
+	final double bias = 1.0;
 	public double NeuronOutput = 0;
 	//private int inputConnectionCount = 0;
 	
@@ -79,12 +79,11 @@ public class Neuron {
 			double weight = connection.getWeight();
 			double input = connection.getInput();
 			weightedSum = weightedSum + weight*input;
-		}
-		
-		//Add bias to the weighted sum
+		}		
+		/*
 		if (biasConnection != null) {
 			weightedSum = weightedSum + (this.biasConnection.getWeight()*this.bias);
-		}
+		}*/
 		
 		return weightedSum;
 	}
@@ -101,7 +100,7 @@ public class Neuron {
 	/* Add a connection for bias to this neuron, which bias neuron is a fake neuron should always output 1*/
 	private void addBiasConnection(Neuron neuron) {
 		NeuronConnection connection = new NeuronConnection(neuron,this);
-		this.biasConnection = connection;
+		//this.biasConnection = connection;
 		inputConnections.add(connection); //Add bias connection to the list for the ease of weight updating, it should always output 0
 	}
 	
