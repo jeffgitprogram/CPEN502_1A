@@ -17,7 +17,6 @@ public class NeuronConnection {
 	
 	private double prevDeltaWeight = 0.0;	
 	
-	private double error = 0.0;
 	
 	
 	/*Construction with random initialization*/
@@ -56,13 +55,7 @@ public class NeuronConnection {
 		return this.prevDeltaWeight;
 	}	
 	
-	public void setError(double value) {
-		this.error = value;
-	}
-	
-	public double getError() {
-		return this.error;
-	}
+
 	
 	
 	public double getInput() {

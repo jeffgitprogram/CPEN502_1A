@@ -154,10 +154,10 @@ public class NeuralNet implements NeuralNetInterface {
 			double ci = expectedOutput[i];
 			
 			ArrayList<NeuronConnection> connections = output.getInputConnectionList();
+			double error = customSigmoidDerivative(yi)*(ci-yi);
+			output.setError(error);
 			for(NeuronConnection link : connections) {
 				double xi = link.getInput();
-				double error = customSigmoidDerivative(yi)*(ci-yi);
-				link.setError(error);
 				double deltaWeight = argLearningRate*error*xi + argMomentumRate*link.getDeltaWeight();//current link's deltaweight has not be updated yet, so it is previous delta w
 				double newWeight = link.getWeight() + deltaWeight;
 				link.setDeltaWeight(deltaWeight);
@@ -169,17 +169,16 @@ public class NeuralNet implements NeuralNetInterface {
 		for(Neuron hidden: hiddenLayerNeurons) {
 			ArrayList<NeuronConnection> connections = hidden.getInputConnectionList();
 			double yi =hidden.getOutput();
+			double sumWeightedError= 0.0;
+			for(Neuron output: outputLayerNeurons) {
+				double wjh = output.getInputConnection(hidden.getId()).getWeight();
+				double errorFromAbove = output.getError();
+				sumWeightedError = sumWeightedError + wjh *errorFromAbove;
+			}
+			double error = customSigmoidDerivative(yi)*sumWeightedError;
+			hidden.setError(error);
 			for(NeuronConnection link : connections) {
-				double xi = link.getInput();
-				double sumWeightedError= 0.0;
-				for(Neuron output: outputLayerNeurons) {
-					double wjh = output.getInputConnection(hidden.getId()).getWeight();
-					double errorFromAbove = output.getInputConnection(hidden.getId()).getError();
-					sumWeightedError = sumWeightedError + wjh *errorFromAbove;
-				}
-				
-				double error = customSigmoidDerivative(yi)*sumWeightedError;
-				link.setError(error);
+				double xi = link.getInput();				
 				double deltaWeight = argLearningRate*error*xi + argMomentumRate * link.getDeltaWeight();
 				double newWeight = link.getWeight() + deltaWeight;
 				link.setDeltaWeight(deltaWeight);

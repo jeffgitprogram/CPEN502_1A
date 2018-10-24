@@ -16,7 +16,8 @@ public class Neuron {
 	private String activationType;
 	
 	final double bias = 1.0;
-	public double NeuronOutput = 0.0;
+	private double NeuronOutput = 0.0;
+	private double error = 0.0;
 	//private int inputConnectionCount = 0;
 	
 	/*Class Constructors*/
@@ -57,6 +58,14 @@ public class Neuron {
 	
 	public void setOutput(double output) {
 		this.NeuronOutput = output;
+	}
+	
+	public void setError(double value) {
+		this.error = value;
+	}
+	
+	public double getError() {
+		return this.error;
 	}
 	
 	
