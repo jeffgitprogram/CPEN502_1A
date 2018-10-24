@@ -16,7 +16,7 @@ public class Neuron {
 	private String activationType;
 	
 	final double bias = 1.0;
-	public double NeuronOutput = 0;
+	public double NeuronOutput = 0.0;
 	//private int inputConnectionCount = 0;
 	
 	/*Class Constructors*/
@@ -73,7 +73,7 @@ public class Neuron {
 	
 	
 	private double inputSummingFunction(ArrayList<NeuronConnection> inputConnections) {
-		double weightedSum = 0;
+		double weightedSum = 0.0;
 		for(NeuronConnection connection : inputConnections)
 		{
 			double weight = connection.getWeight();

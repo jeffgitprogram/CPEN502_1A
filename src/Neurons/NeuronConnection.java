@@ -9,15 +9,15 @@ public class NeuronConnection {
 	/*Specify the destination of this connection*/
 	private Neuron DestNeuron;
 	/*Used to stored the currentInput this connection*/
-	private double currentInput = 0;
+	private double currentInput = 0.0;
 	/*weight of this connection*/
-	private double weight = 0;
+	private double weight = 0.0;
 	/*For momentum*/
-	private double deltaWeight = 0;
+	private double deltaWeight = 0.0;
 	
-	private double prevDeltaWeight = 0;	
+	private double prevDeltaWeight = 0.0;	
 	
-	private double error = 0;
+	private double error = 0.0;
 	
 	
 	/*Construction with random initialization*/

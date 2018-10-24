@@ -171,7 +171,7 @@ public class NeuralNet implements NeuralNetInterface {
 			double yi =hidden.getOutput();
 			for(NeuronConnection link : connections) {
 				double xi = link.getInput();
-				double sumWeightedError= 0;
+				double sumWeightedError= 0.0;
 				for(Neuron output: outputLayerNeurons) {
 					double wjh = output.getInputConnection(hidden.getId()).getWeight();
 					double errorFromAbove = output.getInputConnection(hidden.getId()).getError();
@@ -202,9 +202,9 @@ public class NeuralNet implements NeuralNetInterface {
 	 * @return accumulate squared error generated in one epoch.
 	 */
 	public double train() {
-		double totalError = 0;
+		double totalError = 0.0;
 		for(int p = 0; p < inputData.length; p++) {
-			double error = 0;
+			double error = 0.0;
 			double output[] = outputFor(inputData[p]);
 			epochOutput[p] = output;
 			for (int j = 0; j < expectedOutput[p].length; j++) {
