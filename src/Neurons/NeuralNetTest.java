@@ -8,7 +8,6 @@ import org.junit.Test;
 public class NeuralNetTest {
 	private double inputData[][] = {{0,0},{1,0},{0,1},{1,1}};	
 	private double expectedOutput[][] = {{0},{1},{1},{0}};
-	private double EpochOutput[][] = {{-1},{-1}, {-1}, {-1}};
 	private int numInput = 2;
 	private int numHidden = 4;
 	private int numOutput = 1;
@@ -17,7 +16,7 @@ public class NeuralNetTest {
 	private double lowerBound = 0.0;
 	private double upperBound = 1.0;
 	
-	NeuralNet testNeuronNet = new NeuralNet(numInput,numHidden,numOutput,learningRate,momentumRate,lowerBound,upperBound,inputData,expectedOutput,EpochOutput);
+	NeuralNet testNeuronNet = new NeuralNet(numInput,numHidden,numOutput,learningRate,momentumRate,lowerBound,upperBound,inputData,expectedOutput);
 	Neuron testNeuron = new Neuron("test");
 	@Before
 	public void setUp() throws Exception {
@@ -67,6 +66,10 @@ public class NeuralNetTest {
 		double actualResult = testNeuronNet.getRandom(-0.5, 0.5);
 		System.out.println(actualResult);
 		assertTrue("The output is out of range:"+actualResult, -0.5<=actualResult&&actualResult<=0.5);
+		
+	}
+	
+	public void runMultipleEpoches(NeuralNet theNet, double min) {
 		
 	}
 

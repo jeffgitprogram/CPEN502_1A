@@ -38,8 +38,8 @@ public class NeuralNet implements NeuralNetInterface {
 					int numOutputs, double learningRate, 
 					double momentumRate, double a, double b,
 					double [][] inputData,
-					double [][] expectedOutput,
-					double [][] epochOutput) {
+					double [][] expectedOutput
+					) {
 		this.argNumInputs = numInputs;
 		this.argNumHiddens = numHiddens;
 		this.argNumOutputs = numOutputs;
@@ -49,7 +49,6 @@ public class NeuralNet implements NeuralNetInterface {
 		this.argB = b;
 		this.inputData = inputData;
 		this.expectedOutput = expectedOutput;
-		this.epochOutput = epochOutput;
 		this.setUpNetwork();
 		this.initializeWeights();
 	}
@@ -163,14 +162,14 @@ public class NeuralNet implements NeuralNetInterface {
 			double yi =hidden.getOutput();
 			for(NeuronConnection link : connections) {
 				double xi = link.getInput();
-				double sumWeighted= 0;
+				double sumWeightedError= 0;
 				for(Neuron output: outputLayerNeurons) {
 					double wjh = output.getInputConnection(hidden.getId()).getWeight();
 					double errorFromAbove = output.getInputConnection(hidden.getId()).getError();
-					sumWeighted = sumWeighted + wjh *errorFromAbove;
+					sumWeightedError = sumWeightedError + wjh *errorFromAbove;
 				}
 				
-				double error = customSigmoidDerivative(yi)*sumWeighted;
+				double error = customSigmoidDerivative(yi)*sumWeightedError;
 				link.setError(error);
 				double deltaWeight = argLearningRate*error*xi + argMomentumRate * link.getDeltaWeight();
 				double newWeight = link.getWeight() + deltaWeight;
@@ -189,40 +188,33 @@ public class NeuralNet implements NeuralNetInterface {
 	}
 
 	@Override
-	/***
-	 * This method take in one vector of input and return a vector of output,
-	 * the whole process include one forward propagation and one backward propagation.
-	 */
-	public double train(double[] inputData, double[] expectedValue, int iteration) {
-		double error = 0;
-		double output[] = outputFor(inputData);
-		epochOutput[iteration] = output;
-		for (int j = 0; j < expectedValue.length; j++) {
-			double deltaErr = Math.pow((output[j]-expectedValue[j]),2);
-			error = error + deltaErr;
-		}		
-		this.applyBackpropagation(expectedValue);
-		return error;
-	}
-	
 	/**
 	 * This method run train function for the times that equals to the amount of input samples which is one epoch
 	 * @return accumulate squared error generated in one epoch.
 	 */
-	public double epochTrain() {
-		double totalerror = 0;
+	public double train() {
+		double totalError = 0;
 		for(int p = 0; p < inputData.length; p++) {
-			totalerror = totalerror + train(inputData[p],expectedOutput[p],p);			
+			double error = 0;
+			double output[] = outputFor(inputData[p]);
+			epochOutput[p] = output;
+			for (int j = 0; j < expectedOutput[p].length; j++) {
+				double deltaErr = Math.pow((output[j]-expectedOutput[p][j]),2);
+				error = error + deltaErr;//sum of error for all  output neurons
+			}		
+			this.applyBackpropagation(expectedOutput[p]);
+			totalError = totalError + error;//Accumulated errors in one epoch
 		}
-		errorInEachEpoch.add(totalerror);
-		return totalerror;
+		errorInEachEpoch.add(totalError);
+		return totalError;
 	}
 	
+		
 	public void tryConverge(int maxStep, double minError) {
 		int i;
 		double error = 1;
 		for(i = 0; i < maxStep && error > minError; i++) {
-			error = epochTrain();
+			error = train();
 		}
 		System.out.println("Sum of squared error in last epoch = " + error);
 		System.out.println("Number of epoch"+ i + "\n");
