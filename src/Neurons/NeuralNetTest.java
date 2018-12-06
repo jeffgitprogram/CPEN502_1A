@@ -9,11 +9,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class NeuralNetTest {
-	private double u_inputData[][] = {{0,0},{1,0},{0,1},{1,1}};	
-	private double u_expectedOutput[][] = {{0},{1},{1},{0}};
+	/***Test Data*****/	
 	private int numInput = 2;
 	private int numHidden = 4;
 	private int numOutput = 1;
+	private double u_inputData[][] = {{1,1},{1,0},{0,1},{0,0}};	
+	private double u_expectedOutput[][] = {{0},{1},{1},{0}};
 	private double learningRate = 0.2;
 	private double momentumRate_1 = 0.0;
 	private double u_lowerBound = 0.0;
@@ -29,6 +30,9 @@ public class NeuralNetTest {
 	public void setUp() throws Exception {
 
 	}
+	/*
+	 * This test tests the binary Sigmoid function
+	 */
 	@Ignore("Ignored")
 	@Test
 	public void testBinarySigmoid() {
@@ -38,6 +42,9 @@ public class NeuralNetTest {
 		double actualResult = testNeuron.unipolarSigmoid(x);
 		assertEquals(expectedResult, actualResult, delta);	
 	}
+	/*
+	 * This test tests the bipolar Sigmoid function
+	 */
 	@Ignore("Ignored")
 	@Test
 	public void testBipolarSigmoid() {
@@ -47,6 +54,9 @@ public class NeuralNetTest {
 		double actualResult = testNeuron.bipolarSigmoid(x);
 		assertEquals(expectedResult, actualResult, delta);
 	}
+	/***
+	 * This test tests the derivative function of bipolar sigmoid
+	 */
 	@Ignore("Ignored")
 	@Test
 	public void testBipolarSigmoidDerivative() {
@@ -59,6 +69,10 @@ public class NeuralNetTest {
 		assertEquals(expectedResult, actualResult, delta);
 		
 	}
+	
+	/**
+	 * This test tests the derivative of flexible sigmoid function 
+	 */
 	@Ignore("Ignored")
 	@Test
 	public void testCustomizedSigmoidDerivative() {
@@ -67,9 +81,12 @@ public class NeuralNetTest {
 		double expectedResult = 0.25;
 		double delta = 0.001;
 		double actualResult = testNeuronNet.customSigmoidDerivative(x);
-		assertEquals(expectedResult, actualResult, delta);
-		
+		assertEquals(expectedResult, actualResult, delta);		
 	}
+	
+	/***
+	 * This test tests the random weight generator 
+	 */
 	@Ignore("Ignored")
 	@Test
 	public void testRandomWeightGenerator() {
@@ -78,6 +95,10 @@ public class NeuralNetTest {
 		System.out.println(actualResult);
 		assertTrue("The output is out of range:"+actualResult, -0.5<=actualResult&&actualResult<=0.5);		
 	}
+	
+	/*
+	 * This test tests the converge of neural network using binary representation.
+	 */
 	@Ignore("Ignored")
 	@Test
 	public void testUnipolarConverge() {
@@ -92,7 +113,11 @@ public class NeuralNetTest {
 		}
 		
 	}
-	@Ignore("Ignored")
+	
+	/*
+	 * This test tests the converge of neural network using bipolar representation.
+	 */
+	//@Ignore("Ignored")
 	@Test
 	public void testBipolarConverge() {
 		//testNeuronNet.zeroWeights();
@@ -105,6 +130,9 @@ public class NeuralNetTest {
 			System.out.println(e);
 		}		
 	}
+	/*
+	 * This test tests the converge of neural network using bipolar representation with momentum.
+	 */
 	@Ignore("Ignored")
 	@Test
 	public void testBipolarWithMomentumConverge() {
@@ -118,6 +146,13 @@ public class NeuralNetTest {
 			System.out.println(e);
 		}		
 	}
+<<<<<<< HEAD
+=======
+	
+	/**
+	 * This test tests the average converge performance of bipolar neural network.
+	 */
+>>>>>>> 4193c0b1a58c595129e4965c059934ddeda7f977
 	@Ignore("Ignored")
 	@Test
 	public void testUnipolarAverage(){
@@ -125,12 +160,23 @@ public class NeuralNetTest {
 		System.out.println("The average of number of epoches to converge is: "+average+"\n");
 	}
 	
+<<<<<<< HEAD
 	//@Ignore("Ignored")
+=======
+	/**
+	 * This test tests the average converge performance of unipolar neural network.
+	 */
+	@Ignore("Ignored")
+>>>>>>> 4193c0b1a58c595129e4965c059934ddeda7f977
 	@Test
 	public void testBipolarAverage(){
-		int average = EpochAverage(momentumRate_1,b_lowerBound,b_upperBound,b_inputData,b_expectedOutput,0.05,10000,500);
+		int average = EpochAverage(momentumRate_1,b_lowerBound,b_upperBound,b_inputData,b_expectedOutput,0.05,10000,1000);
 		System.out.println("The average of number of epoches to converge is: "+average+"\n");
 	}
+	
+	/**
+	 * This test tests the average converge performance of bipolar neural network with momentum acceleration.
+	 */
 	@Ignore("Ignored")
 	@Test
 	public void testBipolarWithMomentumAverage(){
@@ -138,7 +184,19 @@ public class NeuralNetTest {
 		System.out.println("The average of number of epoches to converge is: "+average+"\n");
 	}
 	
-	
+	/***
+	 * This function calculates the average of amount of epoch that one trial of network training takes, 
+	 * it take in parameters of a neural network and returns the average of epoch number
+	 * @param momentum
+	 * @param lowerbound
+	 * @param upperbound
+	 * @param input
+	 * @param expected
+	 * @param minError
+	 * @param maxSteps
+	 * @param numTrials
+	 * @return the average of number of epochs
+	 */
 	public int EpochAverage(double momentum, double lowerbound, double upperbound, double[][] input, double[][] expected,double minError, int maxSteps, int numTrials) {
 		int epochNumber, failure,success;
 		double average = 0f;
@@ -146,9 +204,9 @@ public class NeuralNetTest {
 		failure = 0;
 		success = 0;
 		for(int i = 0; i < numTrials; i++) {
-			NeuralNet testNeuronNet = new NeuralNet(numInput,numHidden,numOutput,learningRate,momentum,lowerbound,upperbound,input,expected);
-			testNeuronNet.tryConverge(maxSteps, minError);
-			epochNumber = testNeuronNet.getErrorArray().size();
+			NeuralNet testNeuronNet = new NeuralNet(numInput,numHidden,numOutput,learningRate,momentum,lowerbound,upperbound,input,expected); //Construct a new neural net object
+			testNeuronNet.tryConverge(maxSteps, minError);//Train the network with step and error constrains
+			epochNumber = testNeuronNet.getErrorArray().size(); //get the epoch number of this trial.
 			if( epochNumber < maxSteps) {
 				average = average +  testNeuronNet.getErrorArray().size();
 				success ++; 
@@ -157,6 +215,8 @@ public class NeuralNetTest {
 				failure++;
 			}			
 		}
+		double convergeRate = 100*success/(success+failure);
+		System.out.println("The net converges for "+convergeRate+" percent of the time.\n" );
 		average = average/success;
 		return (int)average;		
 	}	
