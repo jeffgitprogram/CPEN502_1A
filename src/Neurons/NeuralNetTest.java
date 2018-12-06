@@ -146,13 +146,11 @@ public class NeuralNetTest {
 			System.out.println(e);
 		}		
 	}
-<<<<<<< HEAD
-=======
 	
 	/**
 	 * This test tests the average converge performance of bipolar neural network.
 	 */
->>>>>>> 4193c0b1a58c595129e4965c059934ddeda7f977
+
 	@Ignore("Ignored")
 	@Test
 	public void testUnipolarAverage(){
@@ -160,14 +158,13 @@ public class NeuralNetTest {
 		System.out.println("The average of number of epoches to converge is: "+average+"\n");
 	}
 	
-<<<<<<< HEAD
-	//@Ignore("Ignored")
-=======
+
+
 	/**
 	 * This test tests the average converge performance of unipolar neural network.
 	 */
 	@Ignore("Ignored")
->>>>>>> 4193c0b1a58c595129e4965c059934ddeda7f977
+
 	@Test
 	public void testBipolarAverage(){
 		int average = EpochAverage(momentumRate_1,b_lowerBound,b_upperBound,b_inputData,b_expectedOutput,0.05,10000,1000);
